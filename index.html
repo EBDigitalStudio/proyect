@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Nido Rural - Calidad fresca, producción local. Catálogo de productos agrícolas y ganaderos 100% orgánicos directamente del campo a tu hogar.">
+  <title>Nido Rural - Productos Orgánicos</title>
+
+  <!-- ==========================================
+       FAVICONS Y MANIFIESTO
+       ========================================== -->
+  <link rel="icon" type="image/png" href="img/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <link rel="shortcut icon" href="img/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+  <link rel="manifest" href="img/site.webmanifest">
+
+  <!-- ==========================================
+       TIPOGRAFÍA (Google Fonts - Outfit & Plus Jakarta Sans)
+       ========================================== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- ==========================================
+       TAILWIND CSS CDN + CONFIGURACIÓN DE COLORES
+       ========================================== -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'verde-oscuro': '#205c30',
+            'verde-claro': '#70a83e',
+            'marron-tierra': '#9e5b2d',
+            'amarillo-sol': '#fbb03b',
+            'fondo-crema': '#fdfdfb',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Outfit"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- ==========================================
+       HOJA DE ESTILOS PERSONALIZADA
+       ========================================== -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-fondo-crema text-stone-800 font-sans antialiased min-h-screen flex flex-col selection:bg-verde-claro selection:text-white">
+
+  <!-- ==========================================
+       1. HEADER / NAVEGACIÓN PRINCIPAL (FIJA)
+       ========================================== -->
+  <header class="fixed top-0 left-0 w-full z-40 bg-fondo-crema/90 backdrop-blur-md border-b border-verde-oscuro/10 shadow-sm transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Logo y Nombre de Marca -->
+      <a href="index.html" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-verde-claro rounded-xl p-1 transition" aria-label="Ir a inicio - Nido Rural">
+        <img 
+          src="img/Nido_Rural_logo_alta_calidad_page-0001 - Editado.jpg" 
+          alt="Logotipo Nido Rural" 
+          class="h-12 w-12 sm:h-14 sm:w-14 object-contain rounded-full border-2 border-verde-claro/30 shadow-sm group-hover:scale-105 transition-transform duration-300"
+          onerror="this.onerror=null; this.src='img/favicon.svg';"
+        >
+        <div class="flex flex-col">
+          <span class="font-display font-bold text-xl sm:text-2xl text-verde-oscuro tracking-tight leading-none group-hover:text-verde-claro transition-colors">
+            Nido Rural
+          </span>
+          <span class="text-[11px] sm:text-xs font-medium text-marron-tierra uppercase tracking-wider mt-0.5">
+            Calidad orgánica
+          </span>
+        </div>
+      </a>
+
+      <!-- Acciones de Navegación / Botón de Carrito -->
+      <nav class="flex items-center gap-4">
+        <!-- Botón para abrir el carrito -->
+        <button 
+          id="btn-carrito" 
+          type="button" 
+          class="relative flex items-center gap-2.5 bg-verde-oscuro hover:bg-verde-claro text-white px-4 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-verde-claro focus:ring-offset-2"
+          aria-label="Abrir carrito de compras"
+        >
+          <!-- Ícono de Carrito (SVG) -->
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span class="hidden sm:inline font-medium text-sm">Carrito</span>
+          
+          <!-- Contador de Productos del Carrito (Inicia en 0) -->
+          <span 
+            id="contador-carrito" 
+            class="inline-flex items-center justify-center bg-amarillo-sol text-verde-oscuro font-bold text-xs rounded-full w-5 h-5 shadow-inner"
+          >
+            0
+          </span>
+        </button>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- ==========================================
+       2. HERO SECTION / SECCIÓN DE BIENVENIDA
+       ========================================== -->
+  <section class="pt-28 pb-16 md:pt-36 md:pb-24 bg-gradient-to-b from-verde-oscuro/5 via-fondo-crema to-fondo-crema relative overflow-hidden">
+    <!-- Decoración sutil de fondo -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 bg-verde-claro/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
+    <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-amarillo-sol/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      
+      <!-- Etiqueta distintiva -->
+      <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-verde-claro/15 text-verde-oscuro border border-verde-claro/30 shadow-sm mb-6">
+        <svg class="w-4 h-4 text-verde-claro" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        Producción 100% Ecológica & Artesanal
+      </span>
+
+      <!-- Título Principal -->
+      <h1 class="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-verde-oscuro tracking-tight max-w-4xl mx-auto leading-tight">
+        Lo mejor de la granja directamente a tu hogar
+      </h1>
+
+      <!-- Lema del proyecto -->
+      <p class="mt-5 text-xl sm:text-2xl text-marron-tierra font-semibold max-w-2xl mx-auto">
+        “Calidad fresca, producción local”
+      </p>
+
+      <!-- Descripción secundaria -->
+      <p class="mt-3 text-base sm:text-lg text-stone-600 max-w-2xl mx-auto leading-relaxed">
+        Descubre alimentos puros, cultivados y producidos con respeto por los animales y la tierra, sin químicos ni intermediarios.
+      </p>
+
+      <!-- Llamado a la acción (Botón Ver Productos) -->
+      <div class="mt-8 flex justify-center gap-4">
+        <a 
+          href="#productos-contenedor" 
+          class="inline-flex items-center gap-2 px-8 py-3.5 bg-verde-oscuro hover:bg-verde-claro text-white font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-verde-claro focus:ring-offset-2"
+        >
+          <span>Ver Productos</span>
+          <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       3. CATÁLOGO DE PRODUCTOS (MAIN)
+       ID: productos-contenedor solicitado
+       ========================================== -->
+  <main id="productos-contenedor" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 scroll-mt-24">
+    
+    <!-- Encabezado de la Sección de Catálogo -->
+    <div class="text-center mb-12">
+      <h2 class="font-display text-3xl sm:text-4xl font-bold text-verde-oscuro tracking-tight">
+        Nuestros Productos Frescos
+      </h2>
+      <p class="text-stone-600 text-sm sm:text-base mt-2 max-w-xl mx-auto">
+        Cosechados y elaborados diariamente para garantizar el máximo sabor y nutrientes en tu mesa.
+      </p>
+      <div class="w-16 h-1 bg-amarillo-sol mx-auto mt-4 rounded-full"></div>
+    </div>
+
+    <!-- Cuadrícula de Productos (Grid) -->
+    <!-- NOTA JS: Puedes usar este contenedor o su grid para renderizar productos dinámicamente -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+      <!-- ==========================================
+           TARJETA 1: Huevos de campo
+           ========================================== -->
+      <article class="bg-white rounded-2xl border border-stone-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group">
+        <!-- Imagen del producto con badge -->
+        <div class="relative h-56 w-full overflow-hidden bg-stone-100">
+          <img 
+            src="https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?q=80&w=800&auto=format&fit=crop" 
+            alt="Huevos de campo pastoriles" 
+            loading="lazy"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          >
+          <span class="absolute top-3 left-3 bg-amarillo-sol text-verde-oscuro text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+            Pastoreo Libre
+          </span>
+        </div>
+
+        <!-- Contenido y detalles -->
+        <div class="p-6 flex-grow flex flex-col justify-between">
+          <div>
+            <span class="text-xs uppercase tracking-wider font-semibold text-verde-claro">Producción Ganadera</span>
+            <h3 class="font-display font-bold text-xl text-stone-900 mt-1">Huevos de Campo</h3>
+            <p class="text-sm text-stone-600 mt-2 line-clamp-2">
+              Docena de huevos frescos de gallinas libres de jaula, alimentadas con granos naturales y pasturas verdes.
+            </p>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between">
+            <div>
+              <span class="text-xs text-stone-500 block">Precio por docena</span>
+              <span class="text-2xl font-bold text-verde-oscuro">$3.500</span>
+            </div>
+            
+            <!-- Botón Agregar al Carrito (listo para atributos data-* de JS) -->
+            <button 
+              type="button"
+              class="btn-agregar-carrito inline-flex items-center gap-1.5 bg-verde-oscuro hover:bg-verde-claro text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-verde-claro active:scale-95"
+              data-id="1"
+              data-nombre="Huevos de Campo"
+              data-precio="3500"
+              data-imagen="https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?q=80&w=800&auto=format&fit=crop"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Agregar</span>
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- ==========================================
+           TARJETA 2: Leche fresca
+           ========================================== -->
+      <article class="bg-white rounded-2xl border border-stone-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group">
+        <!-- Imagen del producto con badge -->
+        <div class="relative h-56 w-full overflow-hidden bg-stone-100">
+          <img 
+            src="https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=800&auto=format&fit=crop" 
+            alt="Botella de leche fresca de tambo" 
+            loading="lazy"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          >
+          <span class="absolute top-3 left-3 bg-amarillo-sol text-verde-oscuro text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+            100% Pura
+          </span>
+        </div>
+
+        <!-- Contenido y detalles -->
+        <div class="p-6 flex-grow flex flex-col justify-between">
+          <div>
+            <span class="text-xs uppercase tracking-wider font-semibold text-verde-claro">Lácteos Artesanales</span>
+            <h3 class="font-display font-bold text-xl text-stone-900 mt-1">Leche Fresca Entera</h3>
+            <p class="text-sm text-stone-600 mt-2 line-clamp-2">
+              Botella de vidrio de 1 Litro. Leche pasteurizada sin conservantes ni aditivos químicos, directo de nuestro tambo.
+            </p>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between">
+            <div>
+              <span class="text-xs text-stone-500 block">Precio por litro</span>
+              <span class="text-2xl font-bold text-verde-oscuro">$2.200</span>
+            </div>
+            
+            <!-- Botón Agregar al Carrito (listo para atributos data-* de JS) -->
+            <button 
+              type="button"
+              class="btn-agregar-carrito inline-flex items-center gap-1.5 bg-verde-oscuro hover:bg-verde-claro text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-verde-claro active:scale-95"
+              data-id="2"
+              data-nombre="Leche Fresca Entera"
+              data-precio="2200"
+              data-imagen="https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=800&auto=format&fit=crop"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Agregar</span>
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- ==========================================
+           TARJETA 3: Verduras de temporada
+           ========================================== -->
+      <article class="bg-white rounded-2xl border border-stone-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group">
+        <!-- Imagen del producto con badge -->
+        <div class="relative h-56 w-full overflow-hidden bg-stone-100">
+          <img 
+            src="https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop" 
+            alt="Canasta de verduras de temporada recién cosechadas" 
+            loading="lazy"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          >
+          <span class="absolute top-3 left-3 bg-amarillo-sol text-verde-oscuro text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+            Recién Cosechado
+          </span>
+        </div>
+
+        <!-- Contenido y detalles -->
+        <div class="p-6 flex-grow flex flex-col justify-between">
+          <div>
+            <span class="text-xs uppercase tracking-wider font-semibold text-verde-claro">Huerta Agroecológica</span>
+            <h3 class="font-display font-bold text-xl text-stone-900 mt-1">Canasta de Verduras</h3>
+            <p class="text-sm text-stone-600 mt-2 line-clamp-2">
+              Surtido de hortalizas y verduras de temporada (4 kg aprox.). Libres de pesticidas y regadas con agua de vertiente.
+            </p>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between">
+            <div>
+              <span class="text-xs text-stone-500 block">Precio por canasta</span>
+              <span class="text-2xl font-bold text-verde-oscuro">$5.800</span>
+            </div>
+            
+            <!-- Botón Agregar al Carrito (listo para atributos data-* de JS) -->
+            <button 
+              type="button"
+              class="btn-agregar-carrito inline-flex items-center gap-1.5 bg-verde-oscuro hover:bg-verde-claro text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-verde-claro active:scale-95"
+              data-id="3"
+              data-nombre="Canasta de Verduras"
+              data-precio="5800"
+              data-imagen="https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Agregar</span>
+            </button>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+  <!-- ==========================================
+       4. MODAL / PANEL LATERAL DEL CARRITO
+       Oculto por defecto con clase 'hidden'.
+       Para abrir con JS: remover la clase 'hidden'.
+       ========================================== -->
+  <aside 
+    id="modal-carrito" 
+    class="fixed inset-0 z-50 hidden" 
+    aria-labelledby="titulo-carrito" 
+    role="dialog" 
+    aria-modal="true"
+  >
+    <!-- Fondo oscuro traslúcido (Backdrop) -->
+    <div 
+      id="carrito-backdrop" 
+      class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm transition-opacity duration-300"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Panel lateral deslizable a la derecha -->
+    <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col h-full border-l border-verde-oscuro/10">
+        
+        <!-- Cabecera del Carrito -->
+        <div class="px-6 py-5 bg-fondo-crema border-b border-stone-200 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-6 h-6 text-verde-oscuro" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <h2 id="titulo-carrito" class="font-display text-xl font-bold text-verde-oscuro">
+              Tu Carrito
+            </h2>
+          </div>
+
+          <!-- Botón de cerrar carrito -->
+          <button 
+            id="cerrar-carrito" 
+            type="button" 
+            class="text-stone-400 hover:text-marron-tierra p-2 rounded-full hover:bg-stone-100 transition-colors focus:outline-none focus:ring-2 focus:ring-verde-claro"
+            aria-label="Cerrar carrito de compras"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Lista de Productos en el Carrito (Contenedor para JS) -->
+        <!-- NOTA JS: Tu script main.js insertará aquí los elementos seleccionados guardados en localStorage -->
+        <div id="carrito-items" class="flex-1 overflow-y-auto px-6 py-4 divide-y divide-stone-100">
+          
+          <!-- Mensaje de Carrito Vacío (Estado inicial) -->
+          <div id="carrito-vacio" class="h-full flex flex-col items-center justify-center text-center py-12 text-stone-500">
+            <svg class="w-16 h-16 text-stone-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <p class="font-medium text-stone-700">Tu carrito aún está vacío</p>
+            <p class="text-xs text-stone-500 mt-1 max-w-xs">Agrega productos frescos de nuestro catálogo para comenzar tu pedido.</p>
+          </div>
+
+        </div>
+
+        <!-- Pie del Modal: Resumen de Totales y Acción -->
+        <div class="px-6 py-5 bg-stone-50 border-t border-stone-200 space-y-4">
+          
+          <!-- Total Acumulado -->
+          <div class="flex items-center justify-between text-base font-medium text-stone-700">
+            <span>Total estimado:</span>
+            <!-- Span donde JavaScript actualizará el monto total -->
+            <span id="carrito-total" class="text-2xl font-display font-bold text-verde-oscuro">
+              $0
+            </span>
+          </div>
+
+          <p class="text-xs text-stone-500 text-center">
+            Envío y detalles de entrega a coordinar en el pedido.
+          </p>
+
+          <!-- Botón Confirmar Pedido -->
+          <button 
+            id="btn-confirmar-pedido" 
+            type="button" 
+            class="w-full bg-verde-oscuro hover:bg-verde-claro text-white font-semibold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-center block focus:outline-none focus:ring-2 focus:ring-verde-claro focus:ring-offset-2 active:scale-98"
+          >
+            Confirmar Pedido
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==========================================
+       5. FOOTER / PIE DE PÁGINA
+       ========================================== -->
+  <footer class="bg-verde-oscuro text-white mt-16 border-t-4 border-amarillo-sol">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+        
+        <!-- Identidad y Lema -->
+        <div>
+          <h3 class="font-display text-2xl font-bold tracking-tight text-white">Nido Rural</h3>
+          <p class="text-stone-300 text-sm mt-1">Calidad fresca, producción local.</p>
+        </div>
+
+        <!-- Enlaces Rápidos o Información -->
+        <div class="text-stone-300 text-xs sm:text-sm">
+          <span>Agricultura & Ganadería 100% Orgánica</span>
+        </div>
+
+        <!-- Derechos Reservados -->
+        <div class="text-stone-300 text-xs sm:text-sm">
+          <p>&copy; 2026 Nido Rural. Todos los derechos reservados.</p>
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================
+       BOTONES FLOTANTES DE ACCIÓN RÁPIDA (FAB)
+       Fijos en la esquina inferior derecha
+       ========================================== -->
+  <div class="fixed bottom-6 right-6 z-40 flex flex-col gap-3.5 items-end">
+    
+    <!-- Botón Flotante de WhatsApp -->
+    <a 
+      id="btn-whatsapp-flotante"
+      href="https://wa.me/595991211207?text=Hola%20Nido%20Rural,%20tengo%20una%20consulta%20sobre%20sus%20productos%20org%C3%A1nicos." 
+      target="_blank" 
+      rel="noopener noreferrer"
+      class="group relative flex items-center justify-center w-14 h-14 bg-[#25D366] hover:bg-[#20ba59] text-white rounded-full shadow-lg hover:shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-300"
+      aria-label="Contactar por WhatsApp"
+      title="Contactar por WhatsApp"
+    >
+      <!-- Ícono de WhatsApp SVG -->
+      <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.158.572 4.186 1.571 5.942l-1.571 5.733 5.867-1.539c1.71 1.002 3.698 1.571 5.82 1.571 6.627 0 12-5.373 12-12s-5.373-12-12-12z"/>
+      </svg>
+      <!-- Tooltip -->
+      <span class="absolute right-16 px-3 py-1.5 rounded-lg bg-stone-900/90 text-white text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-md">
+        Escríbenos a WhatsApp
+      </span>
+    </a>
+
+    <!-- Botón Flotante de Carrito de Compras -->
+    <button 
+      id="btn-carrito-flotante" 
+      type="button" 
+      class="group relative flex items-center justify-center w-14 h-14 bg-verde-oscuro hover:bg-verde-claro text-white rounded-full shadow-lg hover:shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-verde-claro/50"
+      aria-label="Abrir carrito de compras"
+      title="Ver carrito de compras"
+    >
+      <!-- Ícono de Carrito -->
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+      </svg>
+
+      <!-- Badge rojo llamativo superpuesto con contador -->
+      <span 
+        id="contador-carrito-flotante" 
+        class="absolute -top-1.5 -right-1.5 min-w-[1.4rem] h-[1.4rem] px-1 bg-red-600 border-2 border-white text-white font-extrabold text-[11px] rounded-full flex items-center justify-center shadow-md"
+      >
+        0
+      </span>
+
+      <!-- Tooltip -->
+      <span class="absolute right-16 px-3 py-1.5 rounded-lg bg-stone-900/90 text-white text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-md">
+        Ver Carrito
+      </span>
+    </button>
+
+  </div>
+
+  <!-- ==========================================
+       6. SCRIPTS
+       Lógica del carrito y localStorage
+       ========================================== -->
+  <script src="js/main.js"></script>
+</body>
+</html>
