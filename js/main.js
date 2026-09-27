@@ -5,32 +5,34 @@
  * ============================================================================
  * 
  * GUÍA DIDÁCTICA PARA ALUMNOS / PRESENTACIÓN:
- * Este archivo implementa toda la interactividad del sitio web:
- * 1. Catálogo dinámico: Arreglo de objetos simulando una base de datos.
- * 2. Formato de Moneda Nacional: Función para formatear precios en Guaraníes (Gs. 25.000).
- * 3. Persistencia con localStorage: Los datos del carrito se guardan en el
- *    navegador del cliente para no perderse al recargar la página.
- * 4. Botones flotantes y sincronización de badges (Header y Botón Flotante).
- * 5. Integración con WhatsApp API: Generación de pedidos con texto formateado
- *    y codificado con `encodeURIComponent()`.
+ * Este archivo implementa toda la lógica interactiva del e-commerce:
+ * 1. Catálogo Agropecuario Completo: Productos ganaderos y agrícolas.
+ * 2. Formato de Moneda Oficial (Guaraníes): Gs. XX.XXX (con separador de miles).
+ * 3. Persistencia en localStorage: Mantiene el carrito al recargar la página.
+ * 4. Zonas de Delivery de Cordillera: Caacupé, Tobatí, Atyrá y Eusebio Ayala.
+ * 5. MAPA INTERACTIVO CON LEAFLET.JS:
+ *    - Centrado por defecto en Caacupé (-25.3856, -57.1403).
+ *    - Pin rojo arrastrable (draggable: true) que guarda latitud y longitud.
+ *    - FIX CRUCIAL DE LEAFLET: map.invalidateSize() dentro de un setTimeout de 300ms
+ *      al ejecutar abrirCarrito() para evitar trabas y renderizado erróneo.
+ * 6. Checkout Automatizado con WhatsApp:
+ *    - Inclusión de coordenadas de Google Maps (https://maps.google.com/?q=lat,lng).
+ *    - Formato de texto estructurado con encodeURIComponent().
+ *    - Redirección con window.open() y vaciado automático del carrito.
  * ============================================================================
  */
 
-// Esperamos a que el DOM esté completamente cargado antes de ejecutar la lógica
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ==========================================================================
-     1. BASE DE DATOS SIMULADA (CATÁLOGO DE PRODUCTOS)
+     1. BASE DE DATOS SIMULADA (CATÁLOGO GANADERO Y AGRÍCOLA)
      --------------------------------------------------------------------------
-     Un arreglo de objetos. Todos los precios se definen como números enteros
-     en moneda local (Guaraníes paraguayos).
-     
-     CORRECCIÓN DE IMÁGENES:
-     - 'Miel Orgánica Pura' cuenta con una imagen coherente de frasco de miel y panal.
-     - Se añadió 'Sandía de Cosecha Propia' como producto independiente aprovechando
-       la imagen de sandía fresca.
+     Productos ganaderos (Huevos, Leche, Queso) y agrícolas (Sandía, Tomate,
+     Lechuga, Zanahorias con imagen local directa, Canasta).
+     Precios enteros en Guaraníes (Gs.).
      ========================================================================== */
   const productos = [
+    // --- Producción Ganadera y Lácteos Artesanales ---
     {
       id: 1,
       nombre: 'Huevos de Campo',
@@ -46,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
       precio: 12000, // Gs. 12.000
       categoria: 'Lácteos Artesanales',
       etiqueta: '100% Pura',
-      descripcion: 'Botella de vidrio de 1L. Leche pasteurizada sin conservantes químicos, directo de tambo pastoril.',
+      descripcion: 'Botella de vidrio de 1L. Leche pasteurizada sin aditivos químicos, directo de tambo pastoril.',
       imagen: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=800&auto=format&fit=crop'
     },
     {
@@ -58,33 +60,51 @@ document.addEventListener('DOMContentLoaded', () => {
       descripcion: 'Pieza de queso criollo madurado artesanalmente, con leche pura de vaca y sal marina natural.',
       imagen: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?q=80&w=800&auto=format&fit=crop'
     },
+    
+    // --- Huerta Agroecológica y Frutas de Estación ---
     {
       id: 4,
-      nombre: 'Miel Orgánica Pura',
-      precio: 35000, // Gs. 35.000
-      categoria: 'Apicultura Ecológica',
-      etiqueta: 'Cosecha Propia',
-      descripcion: 'Frasco de 500g de miel pura de abejas multifloral, libre de jarabes y procesada en frío con su panal.',
-      // Imagen auténtica de miel de abejas (corregida)
-      imagen: 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?q=80&w=800&auto=format&fit=crop'
-    },
-    {
-      id: 5,
       nombre: 'Sandía de Cosecha Propia',
-      precio: 20000, // Gs. 20.000
+      precio: 15000, // Gs. 15.000
       categoria: 'Frutas de Estación',
       etiqueta: 'Dulce & Jugosa',
-      descripcion: 'Sandía entera agroecológica, cosechada en su punto óptimo de maduración natural bajo el sol de campo.',
-      // Imagen de sandía fresca de campo
+      descripcion: 'Sandía entera agroecológica cosechada al sol, refrescante y con pulpa roja de sabor intenso.',
       imagen: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?q=80&w=800&auto=format&fit=crop'
     },
     {
-      id: 6,
-      nombre: 'Canasta de Verduras',
-      precio: 45000, // Gs. 45.000
+      id: 5,
+      nombre: 'Tomate Perita Orgánico',
+      precio: 12000, // Gs. 12.000 por kg
       categoria: 'Huerta Agroecológica',
-      etiqueta: 'Recién Cosechado',
-      descripcion: 'Surtido de hortalizas y verduras de temporada (4 kg aprox.), cultivadas sin pesticidas con agua de vertiente.',
+      etiqueta: 'Sin Agroquímicos',
+      descripcion: 'Kilo de tomates perita madurados en planta, carnosos y ricos en sabor para salsas o ensaladas.',
+      imagen: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=800&auto=format&fit=crop'
+    },
+    {
+      id: 6,
+      nombre: 'Lechuga Criolla Hidropónica',
+      precio: 5000, // Gs. 5.000 el mazo
+      categoria: 'Huerta Agroecológica',
+      etiqueta: 'Fresca del Día',
+      descripcion: 'Mazo de lechuga de hojas crujientes, cultivada con agua pura de pozo sin pesticidas sintéticos.',
+      imagen: 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?q=80&w=800&auto=format&fit=crop'
+    },
+    {
+      id: 7,
+      nombre: 'Zanahorias de Campo',
+      precio: 8000, // Gs. 8.000 por kg
+      categoria: 'Huerta Agroecológica',
+      etiqueta: 'Cosecha Fresca',
+      descripcion: 'Kilo de zanahorias dulces recién extraídas de la tierra, fuente natural de nutrientes.',
+      imagen: 'img/zanahoria.jpg' // Archivo local garantizado
+    },
+    {
+      id: 8,
+      nombre: 'Canasta de Verduras de Temporada',
+      precio: 35000, // Gs. 35.000
+      categoria: 'Huerta Agroecológica',
+      etiqueta: 'Surtido 4 kg',
+      descripcion: 'Selección variada de hortalizas y verduras de hoja verde de la huerta, frescas y listas para cocinar.',
       imagen: 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop'
     }
   ];
@@ -92,85 +112,178 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ==========================================================================
      2. GESTIÓN DEL ESTADO Y LOCALSTORAGE
      --------------------------------------------------------------------------
-     ¿Qué es localStorage?
-     Es una memoria persistente en el navegador web (almacenamiento local)
-     que conserva la información incluso si el usuario cierra el navegador
-     o recarga la página (F5).
-     
-     - JSON.stringify(objeto): Convierte estructuras de datos de JS a texto (string).
-     - JSON.parse(texto): Convierte texto en formato JSON de vuelta a arreglos u objetos.
-     - Operador || []: Si la clave no existe en localStorage (devuelve null),
-       asignamos un arreglo vacío [] por defecto para evitar errores.
+     Persistencia en el navegador para que no se pierdan los productos agregados.
      ========================================================================== */
   const CLAVE_LOCALSTORAGE = 'nido_rural_carrito';
 
-  /**
-   * Obtiene y parsea los productos almacenados en localStorage
-   * @returns {Array} Arreglo con los ítems del carrito
-   */
   function obtenerCarritoDeLocalStorage() {
-    const datosGuardados = localStorage.getItem(CLAVE_LOCALSTORAGE);
-    return datosGuardados ? JSON.parse(datosGuardados) : [];
+    const datos = localStorage.getItem(CLAVE_LOCALSTORAGE);
+    return datos ? JSON.parse(datos) : [];
   }
 
-  /**
-   * Guarda el estado actual del carrito en localStorage
-   */
   function guardarCarritoEnLocalStorage() {
     localStorage.setItem(CLAVE_LOCALSTORAGE, JSON.stringify(carrito));
   }
 
-  // Estado global del carrito en memoria
   let carrito = obtenerCarritoDeLocalStorage();
 
   /* ==========================================================================
      3. FORMATEO DE MONEDA LOCAL (GUARANÍES - PARAGUAY)
      --------------------------------------------------------------------------
-     ¿Cómo funciona?
-     En Paraguay la moneda oficial es el Guaraní (Gs.) y utiliza puntos (.)
-     para la separación de miles (ej. Gs. 25.000).
-     
-     `Number(valor).toLocaleString('es-PY')` utiliza la API internacional nativa
-     de JavaScript (Intl) aplicando las reglas numéricas oficiales de Paraguay.
+     Formatea números al estándar oficial de Paraguay: Gs. XX.XXX.
      ========================================================================== */
   function formatearGuaranies(valor) {
-    const numeroFormateado = Number(valor).toLocaleString('es-PY', {
+    const formateado = Number(valor).toLocaleString('es-PY', {
       maximumFractionDigits: 0
     });
-    return `Gs. ${numeroFormateado}`;
+    return `Gs. ${formateado}`;
   }
 
   /* ==========================================================================
-     4. REFERENCIAS AL DOM (SELECTORES)
+     4. REFERENCIAS A ELEMENTOS DEL DOM (SELECTORES)
      ========================================================================== */
-  // Contenedor de la cuadrícula de productos en el catálogo
+  // Catálogo
   const contenedorGrid = document.querySelector('#productos-contenedor .grid');
 
-  // Botón y contador en el Header
+  // Header y Botones Flotantes (Badges de conteo)
   const btnAbrirCarritoHeader = document.getElementById('btn-carrito');
   const contadorCarritoHeader = document.getElementById('contador-carrito');
-
-  // Botón y badge en el Botón Flotante (FAB)
   const btnCarritoFlotante = document.getElementById('btn-carrito-flotante');
   const contadorCarritoFlotante = document.getElementById('contador-carrito-flotante');
 
-  // Modal / Drawer lateral del Carrito
+  // Modal del Carrito
   const modalCarrito = document.getElementById('modal-carrito');
-  const backdropCarrito = document.getElementById('carrito-backdrop');
   const btnCerrarCarrito = document.getElementById('cerrar-carrito');
   const listaCarrito = document.getElementById('carrito-items');
+
+  // Sección de Método de Entrega y Delivery
+  const radiosMetodoEntrega = document.querySelectorAll('input[name="metodo-entrega"]');
+  const seccionDelivery = document.getElementById('seccion-delivery');
+  const selectZonaDelivery = document.getElementById('select-zona');
+  const inputDireccionDelivery = document.getElementById('input-direccion');
+  const filaCostoDelivery = document.getElementById('fila-costo-delivery');
+
+  // Desglose de Totales y Botón de Checkout
+  const subtotalCarritoTexto = document.getElementById('carrito-subtotal');
+  const costoDeliveryTexto = document.getElementById('carrito-costo-delivery');
   const totalCarritoTexto = document.getElementById('carrito-total');
   const btnConfirmarPedido = document.getElementById('btn-confirmar-pedido');
 
   /* ==========================================================================
-     5. RENDERIZADO DEL CATÁLOGO DE PRODUCTOS
+     5. VARIABLES Y CONFIGURACIÓN DEL MAPA INTERACTIVO (LEAFLET.JS)
      --------------------------------------------------------------------------
-     Recorre el arreglo 'productos' y crea dinámicamente las tarjetas en el DOM.
+     Coordenadas iniciales: Caacupé, Departamento de Cordillera
+     Latitud: -25.3856 | Longitud: -57.1403
+     ========================================================================== */
+  const COORDENADAS_DEFAULT = {
+    lat: -25.3856,
+    lng: -57.1403
+  };
+
+  // Coordenadas de las ciudades del Dpto. de Cordillera
+  const COORDENADAS_CORDILLERA = {
+    'Caacupé': { lat: -25.3856, lng: -57.1403 },
+    'Tobatí': { lat: -25.2608, lng: -57.0672 },
+    'Atyrá': { lat: -25.2794, lng: -57.1683 },
+    'Eusebio Ayala': { lat: -25.3972, lng: -56.9606 }
+  };
+
+  // Estado de las coordenadas elegidas para la entrega
+  let coordenadasDelivery = { ...COORDENADAS_DEFAULT };
+
+  // Instancias globales de Leaflet
+  let mapaLeaflet = null;
+  let marcadorDelivery = null;
+
+  /**
+   * Crea un ícono rojo personalizado para el marcador usando SVG
+   * para asegurar que cargue de inmediato sin requerir imágenes externas.
+   */
+  function crearIconoMarcadorRojo() {
+    return L.divIcon({
+      className: 'custom-marcador-rojo',
+      html: `
+        <div style="transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; cursor: grab;">
+          <svg width="34" height="42" viewBox="0 0 24 30" fill="none" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 9 12 18 12 18s12-9 12-18c0-6.63-5.37-12-12-12z" fill="#DC2626"/>
+            <circle cx="12" cy="11" r="4.5" fill="#FFFFFF"/>
+          </svg>
+        </div>
+      `,
+      iconSize: [0, 0]
+    });
+  }
+
+  /**
+   * Inicializa el mapa interactivo de Leaflet en el contenedor #mapa-delivery
+   * centrado por defecto en Caacupé con zoom 14.
+   */
+  function inicializarMapaDelivery() {
+    const contenedorMapa = document.getElementById('mapa-delivery');
+    if (!contenedorMapa) return;
+
+    // Si ya fue creado anteriormente, no lo recreamos
+    if (mapaLeaflet !== null) return;
+
+    // Comprobamos que la librería de Leaflet esté disponible en window
+    if (typeof L === 'undefined') {
+      console.warn('Leaflet aún no ha terminado de cargar.');
+      return;
+    }
+
+    // 1. Instanciamos el mapa centrado en Caacupé con nivel de zoom 14
+    mapaLeaflet = L.map('mapa-delivery', {
+      zoomControl: true,
+      scrollWheelZoom: false // Evita scrolls accidentales en pantallas táctiles y PC
+    }).setView([coordenadasDelivery.lat, coordenadasDelivery.lng], 14);
+
+    // 2. Capa base de azulejos (Tiles) de OpenStreetMap
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(mapaLeaflet);
+
+    // 3. Marcador rojo arrastrable (draggable: true)
+    marcadorDelivery = L.marker([coordenadasDelivery.lat, coordenadasDelivery.lng], {
+      draggable: true,
+      icon: crearIconoMarcadorRojo()
+    }).addTo(mapaLeaflet);
+
+    // 4. Evento dragend: se dispara cuando el usuario suelta el pin arrastrado
+    marcadorDelivery.on('dragend', () => {
+      const posicion = marcadorDelivery.getLatLng();
+      coordenadasDelivery.lat = posicion.lat;
+      coordenadasDelivery.lng = posicion.lng;
+    });
+
+    // 5. Permitir también hacer clic en cualquier parte del mapa para reubicar el pin
+    mapaLeaflet.on('click', (evento) => {
+      marcadorDelivery.setLatLng(evento.latlng);
+      coordenadasDelivery.lat = evento.latlng.lat;
+      coordenadasDelivery.lng = evento.latlng.lng;
+    });
+  }
+
+  /**
+   * Corrige el cálculo de dimensiones de Leaflet cuando el modal o contenedor
+   * estaba oculto mediante map.invalidateSize().
+   */
+  function refrescarTamanioMapa() {
+    if (!mapaLeaflet) {
+      inicializarMapaDelivery();
+    }
+    setTimeout(() => {
+      if (mapaLeaflet) {
+        mapaLeaflet.invalidateSize();
+      }
+    }, 300);
+  }
+
+  /* ==========================================================================
+     6. RENDERIZADO DEL CATÁLOGO DE PRODUCTOS
      ========================================================================== */
   function renderizarProductos() {
     if (!contenedorGrid) return;
-
-    // Limpiamos contenido previo para evitar duplicados
     contenedorGrid.innerHTML = '';
 
     productos.forEach(producto => {
@@ -178,7 +291,6 @@ document.addEventListener('DOMContentLoaded', () => {
       tarjeta.className = 'bg-white rounded-2xl border border-stone-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group';
 
       tarjeta.innerHTML = `
-        <!-- Imagen del producto con badge de calidad -->
         <div class="relative h-56 w-full overflow-hidden bg-stone-100">
           <img 
             src="${producto.imagen}" 
@@ -192,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
           </span>
         </div>
 
-        <!-- Contenido descriptivo -->
         <div class="p-6 flex-grow flex flex-col justify-between">
           <div>
             <span class="text-xs uppercase tracking-wider font-semibold text-verde-claro">${producto.categoria}</span>
@@ -202,14 +313,12 @@ document.addEventListener('DOMContentLoaded', () => {
             </p>
           </div>
 
-          <!-- Precio y botón de agregar -->
           <div class="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between">
             <div>
               <span class="text-xs text-stone-500 block">Precio por unidad</span>
               <span class="text-xl sm:text-2xl font-bold text-verde-oscuro">${formatearGuaranies(producto.precio)}</span>
             </div>
             
-            <!-- Botón Agregar al Carrito (almacena el ID del producto en data-id) -->
             <button 
               type="button"
               class="btn-agregar-carrito inline-flex items-center gap-1.5 bg-verde-oscuro hover:bg-verde-claro text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-verde-claro active:scale-95"
@@ -229,20 +338,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ==========================================================================
-     6. LÓGICA DE NEGOCIO DEL CARRITO
-     --------------------------------------------------------------------------
-     Funciones para manipular el arreglo: agregar, sumar, restar, eliminar, vaciar.
+     7. LÓGICA DE NEGOCIO DEL CARRITO
      ========================================================================== */
-
-  /**
-   * Agrega un producto al carrito o incrementa su cantidad si ya existe.
-   * @param {number} idProducto - ID único del producto
-   */
   function agregarAlCarrito(idProducto) {
     const productoOriginal = productos.find(p => p.id === idProducto);
     if (!productoOriginal) return;
 
-    // Buscamos si ya se encuentra en el carrito
     const itemExistente = carrito.find(item => item.id === idProducto);
 
     if (itemExistente) {
@@ -257,21 +358,13 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Persistir y refrescar la pantalla
     guardarCarritoEnLocalStorage();
     actualizarInterfazCarrito();
 
-    // Feedback visual animado en los botones de carrito
-    animarBotonCarrito(btnAbrirCarritoHeader);
-    animarBotonCarrito(btnCarritoFlotante);
+    animarElemento(btnAbrirCarritoHeader);
+    animarElemento(btnCarritoFlotante);
   }
 
-  /**
-   * Modifica la cantidad de un ítem (+1 o -1).
-   * Si la cantidad llega a 0, se elimina automáticamente.
-   * @param {number} idProducto 
-   * @param {number} delta 
-   */
   function modificarCantidad(idProducto, delta) {
     const item = carrito.find(p => p.id === idProducto);
     if (!item) return;
@@ -287,105 +380,124 @@ document.addEventListener('DOMContentLoaded', () => {
     actualizarInterfazCarrito();
   }
 
-  /**
-   * Elimina un producto por completo del carrito
-   * @param {number} idProducto 
-   */
   function eliminarDelCarrito(idProducto) {
     carrito = carrito.filter(item => item.id !== idProducto);
     guardarCarritoEnLocalStorage();
     actualizarInterfazCarrito();
   }
 
-  /**
-   * Vacía totalmente el carrito y limpia el localStorage
-   */
   function vaciarCarrito() {
     carrito = [];
     guardarCarritoEnLocalStorage();
     actualizarInterfazCarrito();
   }
 
-  /**
-   * Suma el subtotal de todos los productos (precio * cantidad)
-   * @returns {number} Monto total en Guaraníes
-   */
-  function calcularTotalCarrito() {
-    return carrito.reduce((acumulado, item) => acumulado + (item.precio * item.cantidad), 0);
+  function calcularSubtotalProductos() {
+    return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0);
   }
 
-  /**
-   * Cuenta la cantidad total de unidades en el carrito
-   * @returns {number} Cantidad de productos
-   */
   function calcularTotalUnidades() {
-    return carrito.reduce((acumulado, item) => acumulado + item.cantidad, 0);
+    return carrito.reduce((total, item) => total + item.cantidad, 0);
   }
 
-  /**
-   * Aplica un sutil efecto de escala para feedback al agregar productos
-   */
-  function animarBotonCarrito(elemento) {
-    if (!elemento) return;
-    elemento.classList.add('scale-110');
-    setTimeout(() => elemento.classList.remove('scale-110'), 200);
+  function animarElemento(elem) {
+    if (!elem) return;
+    elem.classList.add('scale-110');
+    setTimeout(() => elem.classList.remove('scale-110'), 200);
   }
 
   /* ==========================================================================
-     7. ACTUALIZACIÓN DE LA INTERFAZ DEL CARRITO (UI)
+     8. SISTEMA DE MÉTODO DE ENTREGA Y CÁLCULO DE TOTALES (CORDILLERA)
      --------------------------------------------------------------------------
-     Sincroniza:
-     - Badge del Header (#contador-carrito)
-     - Badge del Botón Flotante (#contador-carrito-flotante)
-     - Total en Guaraníes (#carrito-total)
-     - Lista de productos en el modal lateral (#carrito-items)
+     Zonas de entrega: Caacupé (10.000), Tobatí (15.000), Atyrá (15.000),
+     Eusebio Ayala (20.000).
+     ========================================================================== */
+  function obtenerMetodoEntregaSeleccionado() {
+    const radio = document.querySelector('input[name="metodo-entrega"]:checked');
+    return radio ? radio.value : 'retiro';
+  }
+
+  function obtenerCostoDelivery() {
+    const metodo = obtenerMetodoEntregaSeleccionado();
+    if (metodo === 'delivery' && selectZonaDelivery) {
+      return parseInt(selectZonaDelivery.value, 10) || 0;
+    }
+    return 0; // Si es retiro en tienda, el costo es 0
+  }
+
+  function actualizarTotales() {
+    const subtotal = calcularSubtotalProductos();
+    const costoDelivery = obtenerCostoDelivery();
+    const metodo = obtenerMetodoEntregaSeleccionado();
+    const totalFinal = subtotal + costoDelivery;
+
+    // Subtotal de productos
+    if (subtotalCarritoTexto) {
+      subtotalCarritoTexto.textContent = formatearGuaranies(subtotal);
+    }
+
+    // Fila y costo de delivery
+    if (filaCostoDelivery && costoDeliveryTexto) {
+      if (metodo === 'delivery') {
+        filaCostoDelivery.classList.remove('hidden');
+        costoDeliveryTexto.textContent = formatearGuaranies(costoDelivery);
+      } else {
+        filaCostoDelivery.classList.add('hidden');
+        costoDeliveryTexto.textContent = formatearGuaranies(0);
+      }
+    }
+
+    // Total General a pagar
+    if (totalCarritoTexto) {
+      totalCarritoTexto.textContent = formatearGuaranies(totalFinal);
+    }
+  }
+
+  function sincronizarVistaMetodoEntrega() {
+    const metodo = obtenerMetodoEntregaSeleccionado();
+    if (seccionDelivery) {
+      if (metodo === 'delivery') {
+        seccionDelivery.classList.remove('hidden');
+        refrescarTamanioMapa();
+      } else {
+        seccionDelivery.classList.add('hidden');
+      }
+    }
+    actualizarTotales();
+  }
+
+  /* ==========================================================================
+     9. ACTUALIZACIÓN INTEGRAL DE LA INTERFAZ DEL CARRITO
      ========================================================================== */
   function actualizarInterfazCarrito() {
     const totalUnidades = calcularTotalUnidades();
 
-    // 1. Sincronización del contador en el Header
-    if (contadorCarritoHeader) {
-      contadorCarritoHeader.textContent = totalUnidades;
-    }
+    if (contadorCarritoHeader) contadorCarritoHeader.textContent = totalUnidades;
+    if (contadorCarritoFlotante) contadorCarritoFlotante.textContent = totalUnidades;
 
-    // 2. Sincronización del badge en el Botón Flotante
-    if (contadorCarritoFlotante) {
-      contadorCarritoFlotante.textContent = totalUnidades;
-    }
-
-    // 3. Actualización del total general en Guaraníes
-    const totalPagar = calcularTotalCarrito();
-    if (totalCarritoTexto) {
-      totalCarritoTexto.textContent = formatearGuaranies(totalPagar);
-    }
-
-    // 4. Renderizado del listado de ítems dentro del modal lateral
     if (!listaCarrito) return;
 
     if (carrito.length === 0) {
-      // Estado cuando no hay productos
       listaCarrito.innerHTML = `
-        <div id="carrito-vacio" class="h-full flex flex-col items-center justify-center text-center py-12 text-stone-500">
+        <div id="carrito-vacio" class="flex flex-col items-center justify-center text-center py-8 text-stone-500">
           <svg class="w-16 h-16 text-stone-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
           <p class="font-medium text-stone-700">Tu carrito aún está vacío</p>
-          <p class="text-xs text-stone-500 mt-1 max-w-xs">Agrega productos frescos de nuestro catálogo para comenzar tu pedido.</p>
+          <p class="text-xs text-stone-500 mt-1 max-w-xs">Agrega productos frescos de nuestro campo para comenzar tu pedido.</p>
         </div>
       `;
+      actualizarTotales();
       return;
     }
 
-    // Estado con productos agregados
     listaCarrito.innerHTML = '';
     carrito.forEach(item => {
       const subtotalItem = item.precio * item.cantidad;
+      const fila = document.createElement('div');
+      fila.className = 'py-4 flex items-center gap-4';
 
-      const filaProducto = document.createElement('div');
-      filaProducto.className = 'py-4 flex items-center gap-4';
-
-      filaProducto.innerHTML = `
-        <!-- Miniatura de imagen -->
+      fila.innerHTML = `
         <img 
           src="${item.imagen}" 
           alt="${item.nombre}" 
@@ -393,12 +505,10 @@ document.addEventListener('DOMContentLoaded', () => {
           onerror="this.onerror=null; this.src='img/favicon.svg';"
         >
 
-        <!-- Información del producto -->
         <div class="flex-1 min-w-0">
           <h4 class="font-medium text-stone-900 text-sm truncate">${item.nombre}</h4>
           <p class="text-xs text-stone-500 mt-0.5">Unitario: ${formatearGuaranies(item.precio)}</p>
           
-          <!-- Controles de cantidad (+ / -) -->
           <div class="flex items-center gap-2 mt-2">
             <button 
               type="button" 
@@ -420,14 +530,12 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
 
-        <!-- Subtotal y botón de eliminar -->
         <div class="flex flex-col items-end justify-between self-stretch">
           <button 
             type="button" 
             class="btn-eliminar-item text-stone-400 hover:text-red-500 p-1 transition focus:outline-none"
             data-id="${item.id}"
             title="Eliminar producto"
-            aria-label="Eliminar producto del carrito"
           >
             <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -440,17 +548,33 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
 
-      listaCarrito.appendChild(filaProducto);
+      listaCarrito.appendChild(fila);
     });
+
+    actualizarTotales();
   }
 
   /* ==========================================================================
-     8. CONTROL DEL MODAL (ABRIR / CERRAR)
+     10. CONTROL DEL MODAL (ABRIR / CERRAR) CON FIX DE LEAFLET
+     --------------------------------------------------------------------------
+     Al ejecutar abrirCarrito(), agregamos un setTimeout de 300ms que invoca
+     map.invalidateSize() para que Leaflet recalcule sus dimensiones exactas
+     tras desplegar el modal.
      ========================================================================== */
   function abrirCarrito() {
     if (modalCarrito) {
       modalCarrito.classList.remove('hidden');
       document.body.classList.add('overflow-hidden');
+
+      // FIX CRUCIAL: Esperamos 300ms a que el modal termine de renderizarse
+      setTimeout(() => {
+        if (!mapaLeaflet) {
+          inicializarMapaDelivery();
+        }
+        if (mapaLeaflet) {
+          mapaLeaflet.invalidateSize();
+        }
+      }, 300);
     }
   }
 
@@ -462,37 +586,49 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ==========================================================================
-     9. INTEGRACIÓN CON WHATSAPP (CHECKOUT)
+     11. INTEGRACIÓN CON WHATSAPP (CHECKOUT CON ENLACE DE GOOGLE MAPS)
      --------------------------------------------------------------------------
-     ¿Cómo funciona la API 'wa.me' de WhatsApp?
-     WhatsApp permite enviar un mensaje predeterminado a un número de teléfono
-     mediante la URL:
-     https://wa.me/<NUMERO>?text=<MENSAJE>
-
-     Paraguay:
-     - Código de país: 595
-     - Número local: 0991211207 (se retira el 0 inicial en formato internacional: 595991211207).
-
-     ¿Por qué es indispensable encodeURIComponent()?
-     Las URLs no permiten caracteres como espacios, tildes, saltos de línea (\n)
-     ni asteriscos (*). `encodeURIComponent()` convierte:
-     - Saltos de línea (\n) -> %0A
-     - Espacios -> %20
-     - Puntuación especial en sus equivalentes percent-encoding.
-     Esto asegura que en el chat de WhatsApp se visualicen las viñetas y el texto
-     ordenado y en negrita.
+     Formato del enlace de ubicación:
+     https://maps.google.com/?q=latitud,longitud
      ========================================================================== */
   function enviarPedidoWhatsApp() {
-    // 1. Validar que el carrito no esté vacío
     if (carrito.length === 0) {
-      alert('Tu carrito está vacío. Agrega productos orgánicos antes de confirmar tu pedido.');
+      alert('Tu carrito está vacío. Agrega productos de nuestro catálogo antes de confirmar tu pedido.');
       return;
     }
 
-    // 2. Encabezado del mensaje
+    const metodo = obtenerMetodoEntregaSeleccionado();
+    let zonaNombre = '';
+    let costoDelivery = 0;
+    let direccionTexto = '';
+    let enlaceGoogleMaps = '';
+
+    // Si es Delivery, validamos la dirección y generamos el enlace de Google Maps
+    if (metodo === 'delivery') {
+      direccionTexto = inputDireccionDelivery ? inputDireccionDelivery.value.trim() : '';
+
+      if (!direccionTexto) {
+        alert('Por favor, ingresa tu dirección exacta para realizar el envío por delivery.');
+        if (inputDireccionDelivery) inputDireccionDelivery.focus();
+        return;
+      }
+
+      if (selectZonaDelivery) {
+        const optionSeleccionada = selectZonaDelivery.options[selectZonaDelivery.selectedIndex];
+        zonaNombre = optionSeleccionada.dataset.nombre || optionSeleccionada.text.split('(')[0].trim();
+        costoDelivery = parseInt(selectZonaDelivery.value, 10) || 0;
+      }
+
+      // Enlace de Google Maps con las coordenadas capturadas del pin arrastrable
+      const latFormateada = coordenadasDelivery.lat.toFixed(6);
+      const lngFormateada = coordenadasDelivery.lng.toFixed(6);
+      enlaceGoogleMaps = `https://maps.google.com/?q=${latFormateada},${lngFormateada}`;
+    }
+
+    // Construcción del mensaje para WhatsApp
     let mensaje = '¡Hola Nido Rural! Quiero realizar el siguiente pedido:\n\n';
 
-    // 3. Iteración sobre cada producto detallando Nombre, Cantidad, Costo individual y Subtotal
+    // Lista de productos
     carrito.forEach((item, indice) => {
       const subtotalItem = item.precio * item.cantidad;
       mensaje += `${indice + 1}. *${item.nombre}*\n`;
@@ -501,105 +637,140 @@ document.addEventListener('DOMContentLoaded', () => {
       mensaje += `   • Subtotal: ${formatearGuaranies(subtotalItem)}\n\n`;
     });
 
-    // 4. Resumen final con el costo total en Guaraníes
-    const totalFinal = calcularTotalCarrito();
+    const subtotalProductos = calcularSubtotalProductos();
+    const totalFinal = subtotalProductos + costoDelivery;
+
+    mensaje += '------------------------------------\n';
+    mensaje += `Subtotal Productos: ${formatearGuaranies(subtotalProductos)}\n`;
+
+    // Detalle de Entrega
+    if (metodo === 'delivery') {
+      mensaje += 'Método de entrega: Delivery 🛵\n';
+      mensaje += `Zona: ${zonaNombre}\n`;
+      mensaje += `Dirección: ${direccionTexto}\n`;
+      mensaje += `Ubicación en mapa: ${enlaceGoogleMaps}\n`;
+      mensaje += `Costo del Delivery: ${formatearGuaranies(costoDelivery)}\n`;
+    } else {
+      mensaje += 'Método de entrega: Retiro en la tienda 🏪\n';
+    }
+
     mensaje += '------------------------------------\n';
     mensaje += `*Total a pagar: ${formatearGuaranies(totalFinal)}*\n`;
     mensaje += '------------------------------------\n\n';
-    mensaje += '¡Quedo a la espera de su confirmación para coordinar la entrega! Muchas gracias.';
+    mensaje += '¡Quedo a la espera de su confirmación! Muchas gracias.';
 
-    // 5. Codificación de caracteres para la URL
+    // Codificación segura y apertura de WhatsApp
     const mensajeCodificado = encodeURIComponent(mensaje);
-
-    // 6. Número oficial de destino (595 991 211207)
     const numeroWhatsApp = '595991211207';
     const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensajeCodificado}`;
 
-    // 7. Abrir WhatsApp en una pestaña nueva
     window.open(urlWhatsApp, '_blank');
 
-    // 8. Limpiar el carrito y el localStorage tras confirmar, y cerrar el modal
+    // Limpieza posterior
     vaciarCarrito();
+    if (inputDireccionDelivery) inputDireccionDelivery.value = '';
+    const radioRetiro = document.getElementById('entrega-retiro');
+    if (radioRetiro) {
+      radioRetiro.checked = true;
+      sincronizarVistaMetodoEntrega();
+    }
     cerrarCarrito();
   }
 
   /* ==========================================================================
-     10. ASIGNACIÓN DE EVENTOS (EVENT LISTENERS)
+     12. ASIGNACIÓN DE EVENT LISTENERS (ESCUCHADORES DE EVENTOS)
      ========================================================================== */
 
-  // A) Abrir carrito desde el botón del Header
-  if (btnAbrirCarritoHeader) {
-    btnAbrirCarritoHeader.addEventListener('click', abrirCarrito);
+  // A) Abrir carrito
+  if (btnAbrirCarritoHeader) btnAbrirCarritoHeader.addEventListener('click', abrirCarrito);
+  if (btnCarritoFlotante) btnCarritoFlotante.addEventListener('click', abrirCarrito);
+
+  // B) Cerrar carrito (botón 'X' o clic en el fondo oscuro exterior)
+  if (btnCerrarCarrito) btnCerrarCarrito.addEventListener('click', cerrarCarrito);
+  
+  if (modalCarrito) {
+    modalCarrito.addEventListener('click', (e) => {
+      // Cierra si el clic ocurre directamente en el fondo oscuro exterior
+      if (e.target === modalCarrito) {
+        cerrarCarrito();
+      }
+    });
   }
 
-  // B) Abrir carrito desde el Botón Flotante
-  if (btnCarritoFlotante) {
-    btnCarritoFlotante.addEventListener('click', abrirCarrito);
-  }
-
-  // C) Cerrar carrito (botón 'X', clic en backdrop o tecla Escape)
-  if (btnCerrarCarrito) {
-    btnCerrarCarrito.addEventListener('click', cerrarCarrito);
-  }
-  if (backdropCarrito) {
-    backdropCarrito.addEventListener('click', cerrarCarrito);
-  }
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && modalCarrito && !modalCarrito.classList.contains('hidden')) {
       cerrarCarrito();
     }
   });
 
-  // D) Delegación de eventos para agregar productos desde el catálogo
+  // C) Delegación de eventos en el catálogo para "Agregar al carrito"
   if (contenedorGrid) {
     contenedorGrid.addEventListener('click', (e) => {
-      const botonAgregar = e.target.closest('.btn-agregar-carrito');
-      if (botonAgregar) {
-        const idProducto = parseInt(botonAgregar.dataset.id, 10);
-        agregarAlCarrito(idProducto);
+      const boton = e.target.closest('.btn-agregar-carrito');
+      if (boton) {
+        const id = parseInt(boton.dataset.id, 10);
+        agregarAlCarrito(id);
       }
     });
   }
 
-  // E) Delegación de eventos dentro del modal (+, -, eliminar)
+  // D) Delegación de eventos dentro del modal (+, -, eliminar)
   if (listaCarrito) {
     listaCarrito.addEventListener('click', (e) => {
-      // Sumar cantidad (+)
       const botonSumar = e.target.closest('.btn-sumar-cantidad');
       if (botonSumar) {
-        const id = parseInt(botonSumar.dataset.id, 10);
-        modificarCantidad(id, 1);
+        modificarCantidad(parseInt(botonSumar.dataset.id, 10), 1);
         return;
       }
 
-      // Restar cantidad (-)
       const botonRestar = e.target.closest('.btn-restar-cantidad');
       if (botonRestar) {
-        const id = parseInt(botonRestar.dataset.id, 10);
-        modificarCantidad(id, -1);
+        modificarCantidad(parseInt(botonRestar.dataset.id, 10), -1);
         return;
       }
 
-      // Eliminar producto
       const botonEliminar = e.target.closest('.btn-eliminar-item');
       if (botonEliminar) {
-        const id = parseInt(botonEliminar.dataset.id, 10);
-        eliminarDelCarrito(id);
+        eliminarDelCarrito(parseInt(botonEliminar.dataset.id, 10));
         return;
       }
     });
   }
 
-  // F) Evento para confirmar pedido por WhatsApp
+  // E) Evento para cambio de Método de Entrega (Retiro / Delivery)
+  radiosMetodoEntrega.forEach(radio => {
+    radio.addEventListener('change', sincronizarVistaMetodoEntrega);
+  });
+
+  // F) Evento para cambio de Zona de Delivery en el <select> (Ciudades de Cordillera)
+  if (selectZonaDelivery) {
+    selectZonaDelivery.addEventListener('change', () => {
+      const optionSeleccionada = selectZonaDelivery.options[selectZonaDelivery.selectedIndex];
+      const nombreCiudad = optionSeleccionada.dataset.nombre || optionSeleccionada.text.split('(')[0].trim();
+
+      // Recentrar mapa y pin en la ciudad de Cordillera seleccionada
+      if (COORDENADAS_CORDILLERA[nombreCiudad] && mapaLeaflet && marcadorDelivery) {
+        const nuevaCoord = COORDENADAS_CORDILLERA[nombreCiudad];
+        coordenadasDelivery.lat = nuevaCoord.lat;
+        coordenadasDelivery.lng = nuevaCoord.lng;
+        mapaLeaflet.setView([nuevaCoord.lat, nuevaCoord.lng], 14);
+        marcadorDelivery.setLatLng([nuevaCoord.lat, nuevaCoord.lng]);
+      }
+      actualizarTotales();
+    });
+  }
+
+  // G) Evento para Confirmar Pedido vía WhatsApp
   if (btnConfirmarPedido) {
     btnConfirmarPedido.addEventListener('click', enviarPedidoWhatsApp);
   }
 
   /* ==========================================================================
-     11. INICIALIZACIÓN DE LA APLICACIÓN
+     13. INICIALIZACIÓN DE LA APLICACIÓN
      ========================================================================== */
-  renderizarProductos();       // Carga las tarjetas en la grilla del catálogo
-  actualizarInterfazCarrito();  // Recupera ítems de localStorage y sincroniza badges
+  renderizarProductos();
+  sincronizarVistaMetodoEntrega();
+  actualizarInterfazCarrito();
 
-  console.log('🌾 Nido Rural cargado: Moneda Guaraníes configurada y badges sincronizados.');
+  console.log('📍 Nido Rural: Modal optimizado con scroll interno y delivery en Cordillera listo.');
 });
